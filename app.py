@@ -24,7 +24,7 @@ env = dotenv_values(".env")  # wczytanie zmiennych środowiskowych z pliku .env
 
 if "OPENAI_API_KEY" in st.secrets:
     api_key = st.secrets["OPENAI_API_KEY"]
-    st.success("Klucz API pobrany z secrets.")
+
 else:
     st.info("Nie znaleziono klucza API w secrets, wpisz swój klucz poniżej.")
     col1, col2 = st.columns([3,1])
@@ -47,7 +47,7 @@ if api_key:
         st.error(f"Błąd podczas tworzenia klienta OpenAI: {e}")
 else:
     st.warning("Podaj klucz API, aby korzystać z aplikacji.")
-    
+
 #
 # CHATBOT
 #
