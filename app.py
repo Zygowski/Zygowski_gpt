@@ -22,9 +22,9 @@ USD_TO_PLN = 3.82
 PRICING = model_pricings[MODEL]
 env = dotenv_values(".env")  # wczytanie zmiennych środowiskowych z pliku .env
 
-if 'OPENAI_API_KEY' in st.secrets:
-    env['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
-
+#if 'OPENAI_API_KEY' in st.secrets:
+   # env['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
+api_key = st.secrets["OPENAI_API_KEY"]
 #
 # CHATBOT
 #
