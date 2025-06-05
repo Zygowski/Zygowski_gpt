@@ -20,10 +20,10 @@ model_pricings = {
 MODEL = "gpt-4o"
 USD_TO_PLN = 3.82
 PRICING = model_pricings[MODEL]
+env = dotenv_values(".env")  # wczytanie zmiennych środowiskowych z pliku .env
 
-env = dotenv_values(".env")
-openai_client = OpenAI(api_key=env["OPENAI_API_KEY"])
-
+if 'OPENAI_API_KEY' in st.secrets:
+    env['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 
 #
 # CHATBOT
