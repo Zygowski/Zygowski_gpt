@@ -22,9 +22,32 @@ USD_TO_PLN = 3.82
 PRICING = model_pricings[MODEL]
 env = dotenv_values(".env")  # wczytanie zmiennych środowiskowych z pliku .env
 
-#if 'OPENAI_API_KEY' in st.secrets:
-   # env['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
-api_key = st.secrets["OPENAI_API_KEY"]
+if "OPENAI_API_KEY" in st.secrets:
+    api_key = st.secrets["OPENAI_API_KEY"]
+    st.success("Klucz API pobrany z secrets.")
+else:
+    st.info("Nie znaleziono klucza API w secrets, wpisz swój klucz poniżej.")
+    col1, col2 = st.columns([3,1])
+    with col1:
+        api_key = st.text_input("Wpisz swój OpenAI API Key", type="password")
+    with col2:
+        if st.button("Zatwierdź"):
+            if not api_key:
+                st.error("Klucz API nie może być pusty!")
+            else:
+                st.success("Klucz API przyjęty.")
+
+# Dopiero jeśli jest klucz, próbujemy utworzyć klienta i wykonać akcję
+if api_key:
+    try:
+        client = OpenAI(api_key=api_key)
+        st.write("Klient OpenAI utworzony poprawnie! Możesz korzystać z API.")
+        # Tutaj możesz dodać dalszą logikę korzystając z client
+    except Exception as e:
+        st.error(f"Błąd podczas tworzenia klienta OpenAI: {e}")
+else:
+    st.warning("Podaj klucz API, aby korzystać z aplikacji.")
+    
 #
 # CHATBOT
 #
