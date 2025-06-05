@@ -26,29 +26,33 @@ PRICING = model_pricings[MODEL]
 env = dotenv_values(".env")  # wczytanie zmiennych środowiskowych z pliku .env
 
 
-if "api_key" not in st.session_state:
-    st.session_state.api_key = ""
+if "OPENAI_API_KEY" in st.secrets:
+    openai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# Jeśli klucz nie został ustawiony, pokaż tylko formularz
-if not st.session_state.api_key:
-    st.title("🔐 Wprowadź swój OpenAI API Key")
+else:
+    # Jeśli nie ma klucza w secrets, sprawdź sesję
+    if "api_key" not in st.session_state:
+        st.session_state.api_key = ""
 
-    with st.form("key_form"):
-        api_input = st.text_input("Klucz API:", type="password", placeholder="sk-...")
-        submit = st.form_submit_button("Zatwierdź")
+    # Jeśli użytkownik jeszcze nie podał klucza, pokaż formularz
+    if not st.session_state.api_key:
+        st.title("🔐 Wprowadź swój OpenAI API Key")
 
-        if submit:
-            if api_input:
-                st.session_state.api_key = api_input
-                st.experimental_rerun()
-            else:
-                st.warning("⚠️ Klucz nie może być pusty.")
+        with st.form("key_form"):
+            api_input = st.text_input("Klucz API:", type="password", placeholder="sk-...")
+            submitted = st.form_submit_button("Zatwierdź")
 
-    # Zatrzymaj dalsze ładowanie aplikacji, dopóki nie ma klucza
-    st.stop()
+            if submitted:
+                if api_input:
+                    st.session_state.api_key = api_input
+                    st.experimental_rerun()
+                else:
+                    st.warning("⚠️ Klucz nie może być pusty.")
 
-# ✅ Jeśli klucz został podany — możesz teraz z niego korzystać
-openai_client = OpenAI(api_key=st.session_state.api_key)
+        st.stop()
+
+    # Użyj klucza od użytkownika
+    openai_client = OpenAI(api_key=st.session_state.api_key)
 
 #
 # CHATBOT
