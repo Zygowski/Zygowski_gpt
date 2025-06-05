@@ -4,6 +4,9 @@ from dotenv import dotenv_values
 import json
 from pathlib import Path
 import os
+
+st.set_page_config(page_title="Zygowski GPT", layout="centered")
+
 #
 # ZMIENNE
 #
@@ -21,6 +24,10 @@ MODEL = "gpt-4o"
 USD_TO_PLN = 3.82
 PRICING = model_pricings[MODEL]
 env = dotenv_values(".env")  # wczytanie zmiennych środowiskowych z pliku .env
+
+
+if "api_key" not in st.session_state:
+    st.session_state.api_key = ""
 
 if "OPENAI_API_KEY" in st.secrets:
     api_key = st.secrets["OPENAI_API_KEY"]
