@@ -29,31 +29,26 @@ env = dotenv_values(".env")  # wczytanie zmiennych środowiskowych z pliku .env
 if "api_key" not in st.session_state:
     st.session_state.api_key = ""
 
-if "OPENAI_API_KEY" in st.secrets:
-    api_key = st.secrets["OPENAI_API_KEY"]
+# Jeśli klucz nie został ustawiony, pokaż tylko formularz
+if not st.session_state.api_key:
+    st.title("🔐 Wprowadź swój OpenAI API Key")
 
-else:
-    st.info("Nie znaleziono klucza API w secrets, wpisz swój klucz poniżej.")
-    col1, col2 = st.columns([3,1])
-    with col1:
-        api_key = st.text_input("Wpisz swój OpenAI API Key", type="password")
-    with col2:
-        if st.button("Zatwierdź"):
-            if not api_key:
-                st.error("Klucz API nie może być pusty!")
+    with st.form("key_form"):
+        api_input = st.text_input("Klucz API:", type="password", placeholder="sk-...")
+        submit = st.form_submit_button("Zatwierdź")
+
+        if submit:
+            if api_input:
+                st.session_state.api_key = api_input
+                st.experimental_rerun()
             else:
-                st.success("Klucz API przyjęty.")
+                st.warning("⚠️ Klucz nie może być pusty.")
 
-# Dopiero jeśli jest klucz, próbujemy utworzyć klienta i wykonać akcję
-if api_key:
-    try:
-        client = OpenAI(api_key=api_key)
-        st.write("Klient OpenAI utworzony poprawnie! Możesz korzystać z API.")
-        # Tutaj możesz dodać dalszą logikę korzystając z client
-    except Exception as e:
-        st.error(f"Błąd podczas tworzenia klienta OpenAI: {e}")
-else:
-    st.warning("Podaj klucz API, aby korzystać z aplikacji.")
+    # Zatrzymaj dalsze ładowanie aplikacji, dopóki nie ma klucza
+    st.stop()
+
+# ✅ Jeśli klucz został podany — możesz teraz z niego korzystać
+openai_client = OpenAI(api_key=st.session_state.api_key)
 
 #
 # CHATBOT
