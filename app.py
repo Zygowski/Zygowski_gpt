@@ -257,13 +257,15 @@ def switch_conversation(conversation_id):
     load_conversation_to_state(conversation) # załadować tą konwersacje do sesji 
     
     
-    # --- TU dodajemy automatyczne nadawanie nazwy ---
-    if st.session_state["name"] == "Nowa konwersacja":
+# --- TU dodajemy automatyczne nadawanie nazwy ---
+# Upewnij się, że załadowałeś wiadomości przed generowaniem nazwy
+    if (
+        st.session_state.get("name") == "Nowa konwersacja"
+        and st.session_state.get("messages")  # sprawdzamy czy są jakiekolwiek wiadomości
+):
         new_name = generate_conversation_name(st.session_state["messages"])
         st.session_state["name"] = new_name
-        if "new_conversation_name" not in st.session_state:
-            st.session_state["new_conversation_name"] = new_name
-
+        st.session_state["new_conversation_name"] = new_name
         save_current_conversation_name()
 
     st.rerun()
