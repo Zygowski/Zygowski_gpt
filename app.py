@@ -200,13 +200,13 @@ def save_current_conversation_personality():
 
 def generate_conversation_name(messages):
     # Tylko pierwsze 1–2 wiadomości wystarczą
-    short_history = messages[:2]
+    short_history = "\n".join([f"{m['role']}: {m['content']}" for m in messages[:2]])
 
     prompt = [
         {"role": "system",
-          "content": "Jesteś asystentem, który nadaje krótkie, trafne tytuły konwersacjom."},
+        "content": "Jesteś asystentem, który nadaje krótkie, trafne tytuły konwersacjom."},
         {"role": "user",
-          "content": f"Oto początek rozmowy:\n\n{short_history}\n\nNadaj krótki tytuł (maks 5 słów)."}
+        "content": f"Oto początek rozmowy:\n\n{short_history}\n\nNadaj krótki tytuł (maks 5 słów)."}
     ]
 
     response = openai_client.chat.completions.create(
@@ -215,7 +215,7 @@ def generate_conversation_name(messages):
         max_tokens=20,
     )
 
-    return response.choices[0].message.content.strip()
+    return response.choices[0].message['content'].strip()
 
 
 def create_new_conversation():
@@ -226,6 +226,9 @@ def create_new_conversation():
     personality = st.session_state.get("chatbot_personality", DEFAULT_PERSONALITY) # pobieramy osobowość chatbota z sesji lub ustawiamy domyślną
     
 
+    # Generujemy nazwę konwersacji używając AI, przekazując np. domyślną osobowość jako kontekst, jeżeli nie ma wcześniejszych wiadomości
+    initial_messages = [{"role": "system", "content": personality}]
+    new_name = generate_conversation_name(initial_messages)
     
     conversation = {
         "id": conversation_id,
