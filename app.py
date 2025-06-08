@@ -318,11 +318,11 @@ for idx, message in enumerate(st.session_state["messages"]):
             st.session_state["messages"][idx]["content"] = edited_content
             st.session_state.editing[idx] = False
             save_current_conversation_messages()  # Zapisz zmiany
-            st.experimental_rerun()
+            st.rerun()
 
         if st.button("Anuluj", key=f"cancel_{idx}"):
             st.session_state.editing[idx] = False
-            st.experimental_rerun()
+            st.rerun()
 
     else:
         with st.chat_message(message["role"]):
@@ -333,7 +333,7 @@ for idx, message in enumerate(st.session_state["messages"]):
             st.write(f"Adding edit button for message {idx}")
             if st.button("Edytuj", key=f"edit_btn_{idx}"):
                 st.session_state.editing[idx] = True
-                st.experimental_rerun()
+                st.rerun()
 
 prompt = st.chat_input("O co chcesz spytać?")
 if prompt:
