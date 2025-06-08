@@ -353,7 +353,8 @@ with st.sidebar:
         st.metric("Koszt rozmowy (PLN)", f"{total_cost * USD_TO_PLN:.4f}") # koszt rozmowy w PLN zaokrąglony do 4 miejsc po przecinku
     
     if "new_conversation_name" not in st.session_state:
-        st.session_state["new_conversation_name"] = st.session_state["name"]
+        st.session_state["new_conversation_name"] = ""
+
     
     st.session_state["name"] = st.text_input(
         "Nazwa konwersacji",
