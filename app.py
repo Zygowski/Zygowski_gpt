@@ -420,4 +420,3 @@ with st.sidebar:
             if st.button("🗑️", key=f"delete_{conversation['id']}"):
                 delete_conversation(conversation["id"])
  
-st.session_state["messages"]
