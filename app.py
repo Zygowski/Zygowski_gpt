@@ -330,11 +330,11 @@ for idx, message in enumerate(st.session_state["messages"]):
             # Dodaj odpowiedź bota do listy wiadomości
             st.session_state["messages"].append({
                 "role": "assistant",
-                "content": bot_response
+                "content": bot_response['content']
                 })
             
             if idx + 1 < len(st.session_state["messages"]) and st.session_state["messages"][idx + 1]["role"] == "assistant":
-                st.session_state["messages"][idx + 1]["content"] = bot_response  # zaktualizuj istniejącą odpowiedź AI
+                st.session_state["messages"][idx + 1]["content"] = bot_response['content']  # zaktualizuj istniejącą odpowiedź AI
             
             save_current_conversation_messages()
                 # Trigguj update do wizualnego odświeżenia
