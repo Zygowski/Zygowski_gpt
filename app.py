@@ -309,8 +309,9 @@ load_current_conversation()
 st.title(":classical_building: MójGPT")
 
 for idx, message in enumerate(st.session_state["messages"]):
+    st.write(f"Processing message {idx}: {message['role']} - {message['content']}")
+
     if st.session_state.editing.get(idx, False):
-        # Pole do edycji wiadomości
         edited_content = st.text_area(f"Edytuj wiadomość #{idx}", message["content"], key=f"edit_{idx}")
 
         if st.button("Zapisz", key=f"save_{idx}"):
@@ -327,8 +328,9 @@ for idx, message in enumerate(st.session_state["messages"]):
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-        # Dodaj przycisk edycji tylko dla wiadomości użytkownika
+        # Logika dla przycisku edycji
         if message["role"] == "user":
+            st.write(f"Adding edit button for message {idx}")
             if st.button("Edytuj", key=f"edit_btn_{idx}"):
                 st.session_state.editing[idx] = True
                 st.experimental_rerun()
@@ -418,3 +420,4 @@ with st.sidebar:
             if st.button("🗑️", key=f"delete_{conversation['id']}"):
                 delete_conversation(conversation["id"])
  
+st.session_state["messages"]
