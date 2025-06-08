@@ -171,6 +171,8 @@ def save_current_conversation_messages():
 
 def save_current_conversation_name():
     conversation_id = st.session_state["id"]
+    conversation_id = st.session_state.get("id", "id_1")
+
     new_conversation_name = st.session_state["new_conversation_name"]
 
     with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "r") as f:
