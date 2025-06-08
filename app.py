@@ -325,7 +325,7 @@ for idx, message in enumerate(st.session_state["messages"]):
             bot_response = get_chatbot_reply(edited_content, memory)
             # Dodaj odpowiedź bota do listy wiadomości
             st.session_state["messages"].append({
-                "role": "bot",
+                "role": "assistant",
                 "content": bot_response
                 })
             save_current_conversation_messages()
