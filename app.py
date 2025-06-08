@@ -215,7 +215,7 @@ def generate_conversation_name(messages):
         max_tokens=20,
     )
 
-    return response.choices[0].message['content'].strip()
+    return response.choices[0].message.content.strip()
 
 
 def create_new_conversation():
