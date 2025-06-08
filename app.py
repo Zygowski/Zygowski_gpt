@@ -328,6 +328,9 @@ for idx, message in enumerate(st.session_state["messages"]):
                 "role": "assistant",
                 "content": bot_response
                 })
+            
+            st.session_state["messages"][idx + 1]["content"] = bot_response
+            
             save_current_conversation_messages()
                 # Trigguj update do wizualnego odświeżenia
             st.rerun()
