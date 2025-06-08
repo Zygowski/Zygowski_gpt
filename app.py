@@ -45,7 +45,7 @@ else:
             if submitted:
                 if api_input:
                     st.session_state.api_key = api_input
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.warning("⚠️ Klucz nie może być pusty.")
 
