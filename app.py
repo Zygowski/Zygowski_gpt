@@ -151,6 +151,8 @@ def load_current_conversation():
             conversation = json.loads(f.read())
 
     load_conversation_to_state(conversation)
+    if 'editing' not in st.session_state:  # Inicjalizacja stanu edycji
+        st.session_state.editing = {}
 
 # ZAPISYWANIE KONWERSACJI
 
@@ -162,10 +164,7 @@ def save_current_conversation_messages():
         conversation = json.loads(f.read())
 
     with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "w") as f:
-        f.write(json.dumps({
-            **conversation,
-            "messages": new_messages,
-        }))
+        json.dump(st.session_state.to_dict(), f)
 
 
 
@@ -309,9 +308,30 @@ load_current_conversation()
 
 st.title(":classical_building: MójGPT")
 
-for message in st.session_state["messages"]: # instrukcje dla funkcji messages
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+for idx, message in enumerate(st.session_state["messages"]):
+    if st.session_state.editing.get(idx, False):
+        # Pole do edycji wiadomości
+        edited_content = st.text_area(f"Edytuj wiadomość #{idx}", message["content"], key=f"edit_{idx}")
+
+        if st.button("Zapisz", key=f"save_{idx}"):
+            st.session_state["messages"][idx]["content"] = edited_content
+            st.session_state.editing[idx] = False
+            save_current_conversation_messages()  # Zapisz zmiany
+            st.experimental_rerun()
+
+        if st.button("Anuluj", key=f"cancel_{idx}"):
+            st.session_state.editing[idx] = False
+            st.experimental_rerun()
+
+    else:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+        # Dodaj przycisk edycji tylko dla wiadomości użytkownika
+        if message["role"] == "user":
+            if st.button("Edytuj", key=f"edit_btn_{idx}"):
+                st.session_state.editing[idx] = True
+                st.experimental_rerun()
 
 prompt = st.chat_input("O co chcesz spytać?")
 if prompt:
@@ -397,4 +417,4 @@ with st.sidebar:
         with c2:
             if st.button("🗑️", key=f"delete_{conversation['id']}"):
                 delete_conversation(conversation["id"])
-
+ 
