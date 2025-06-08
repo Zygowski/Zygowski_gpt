@@ -226,10 +226,7 @@ def create_new_conversation():
     personality = st.session_state.get("chatbot_personality", DEFAULT_PERSONALITY) # pobieramy osobowość chatbota z sesji lub ustawiamy domyślną
     
 
-    # Generujemy nazwę konwersacji używając AI, przekazując np. domyślną osobowość jako kontekst, jeżeli nie ma wcześniejszych wiadomości
-    initial_messages = [{"role": "system", "content": personality}]
-    new_name = generate_conversation_name(initial_messages)
-    
+
     conversation = {
         "id": conversation_id,
         "name": "Nowa konwersacja",
