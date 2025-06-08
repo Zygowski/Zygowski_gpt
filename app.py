@@ -329,6 +329,12 @@ if prompt:
     st.session_state["messages"].append(chatbot_message)
 
     save_current_conversation_messages()
+    # === AUTOMATYCZNA ZMIANA NAZWY PO PIERWSZEJ ODPOWIEDZI ===
+    if st.session_state["name"] == "Nowa konwersacja" and len(st.session_state["messages"]) >= 2:
+        new_name = generate_conversation_name(st.session_state["messages"])
+        st.session_state["name"] = new_name
+        st.session_state["new_conversation_name"] = new_name
+        save_current_conversation_name()
 
 with st.sidebar:
     st.write("Aktualny model", MODEL)
