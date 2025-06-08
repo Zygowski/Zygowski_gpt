@@ -314,31 +314,28 @@ for idx, message in enumerate(st.session_state["messages"]):
     if st.session_state.editing.get(idx, False):
         edited_content = st.text_area(f"Edytuj wiadomość #{idx}", message["content"], key=f"edit_{idx}")
 
-        if st.button("Zapisz", key=f"save_{idx}"):
-            st.session_state["messages"][idx]["content"] = edited_content
-            st.session_state.editing[idx] = False
-            save_current_conversation_messages()  # Zapisz zmiany
-            
-            # Po edytowaniu, ponownie wywołaj AI, aby odpowiedzieć na nową wersję wiadomości
-            memory = st.session_state["messages"][-20:]
-            
-            # Zakładam istnienie funkcji `get_chatbot_reply` do interakcji z modelem AI
-            bot_response = get_chatbot_reply(edited_content, memory)
-            
-            
-            ai_response_content = bot_response.get('content', '') # tworzenie tekstu w czytelnej formie
-            # Dodaj odpowiedź bota do listy wiadomości
+    if st.button("Zapisz", key=f"save_{idx}"):
+    # Zaktualizuj istniejącą wiadomość
+        st.session_state["messages"][idx]["content"] = edited_content
+        st.session_state.editing[idx] = False
+        save_current_conversation_messages()
+
+        # (Bezpośrednio reagować na zmienioną wiadomość)
+        memory = st.session_state["messages"][-20:]
+        bot_response = get_chatbot_reply(edited_content, memory)
+
+        # Zaktualizuj odpowiedź bota tylko wtedy, gdy występuje zaraz po zmienionej wiadomości użytkownika
+        if idx + 1 < len(st.session_state["messages"]) and st.session_state["messages"][idx + 1]["role"] == "assistant":
+            st.session_state["messages"][idx + 1]["content"] = bot_response['content']
+        else:
+        # Tylko dodaj, jeśli nie istnieje odpowiedź bota
             st.session_state["messages"].append({
                 "role": "assistant",
                 "content": bot_response['content']
-                })
-            
-            if idx + 1 < len(st.session_state["messages"]) and st.session_state["messages"][idx + 1]["role"] == "assistant":
-                st.session_state["messages"][idx + 1]["content"] = bot_response['content']  # zaktualizuj istniejącą odpowiedź AI
-            
-            save_current_conversation_messages()
-                # Trigguj update do wizualnego odświeżenia
-            st.rerun()
+        })
+
+        save_current_conversation_messages()
+        st.rerun()
 
         if st.button("Anuluj", key=f"cancel_{idx}"):
             st.session_state.editing[idx] = False
