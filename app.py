@@ -198,39 +198,49 @@ def save_current_conversation_personality():
             "chatbot_personality": new_chatbot_personality,
         }))
 
+def generate_conversation_name(messages):
+    # Tylko pierwsze 1–2 wiadomości wystarczą
+    short_history = messages[:2]
+
+    prompt = [
+        {"role": "system",
+          "content": "Jesteś asystentem, który nadaje krótkie, trafne tytuły konwersacjom."},
+        {"role": "user",
+          "content": f"Oto początek rozmowy:\n\n{short_history}\n\nNadaj krótki tytuł (maks 5 słów)."}
+    ]
+
+    response = openai_client.chat.completions.create(
+        model=MODEL,
+        messages=prompt,
+        max_tokens=20,
+    )
+
+    return response.choices[0].message.content.strip()
+
 
 def create_new_conversation():
-    # poszukajmy ID dla naszej kolejnej konwersacji
-    conversation_ids = []
-    for p in DB_CONVERSATIONS_PATH.glob("*.json"):
-        conversation_ids.append(int(p.stem)) # ZACZYTYWANIE WSZYSTKICH KONWERSACJI PO ID
+    # Szukamy nowego ID
+    conversation_ids = [int(p.stem) for p in DB_CONVERSATIONS_PATH.glob("*.json")] # zaczytywanie wszystkich plików z rozszerzeniem json i pobieranie ich ID
+    conversation_id = max(conversation_ids, default=0) + 1 # zwiększamy ID o 1
 
-    # conversation_ids zawiera wszystkie ID konwersacji
-    # następna konwersacja będzie miała ID o 1 większe niż największe ID z listy
-    conversation_id = max(conversation_ids) + 1 # SZUKA MAXYMALNEGO I DODAJE 1 DO NAZWY KONWERSACJI
-    personality = DEFAULT_PERSONALITY # domyślna osobowość
-    if "chatbot_personality" in st.session_state and st.session_state["chatbot_personality"]: # CHYBA ŻE W SEJSI JEST JUŻ JAKAŚ INNA OSOBOWOŚĆ
-        personality = st.session_state["chatbot_personality"] # 
+    personality = st.session_state.get("chatbot_personality", DEFAULT_PERSONALITY) # pobieramy osobowość chatbota z sesji lub ustawiamy domyślną
 
-    conversation = { # tworzymy nową konwersację
-        "id": conversation_id, # z nowym id
-        "name": f"Konwersacja {conversation_id}",
-        "chatbot_personality": personality, # z domyślną osobowością lub z osobowością z sesji
-        "messages": [], # z pustą historią wiadomości
+    conversation = {
+        "id": conversation_id,
+        "name": "Nowa konwersacja",
+        "chatbot_personality": personality,
+        "messages": [],
     }
 
-    # tworzymy nową konwersację
-    with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "w") as f:
+    with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "w") as f: # zapisywanie nowej konwersacji do pliku
         f.write(json.dumps(conversation))
 
-    # która od razu staje się aktualną
     with open(DB_PATH / "current.json", "w") as f:
-        f.write(json.dumps({
-            "current_conversation_id": conversation_id,
-        }))
+        f.write(json.dumps({"current_conversation_id": conversation_id})) # zapisywanie ID nowej konwersacji jako aktualnej
 
-    load_conversation_to_state(conversation) # dane z konwersacji ładujemy do sesji
-    st.rerun() # odświeżamy stronę, żeby pokazać nową konwersację
+    load_conversation_to_state(conversation) # załadowanie nowej konwersacji do sesji
+    st.rerun()
+
 
 # funkcja ta pozwala zmienić aktualną konwersacje (ZAŁADOWANIE INNEJ KONWERSACJI)
 def switch_conversation(conversation_id):
@@ -243,6 +253,15 @@ def switch_conversation(conversation_id):
         }))
 
     load_conversation_to_state(conversation) # załadować tą konwersacje do sesji 
+    
+    
+    # --- TU dodajemy automatyczne nadawanie nazwy ---
+    if st.session_state["name"] == "Nowa konwersacja":
+        new_name = generate_conversation_name(st.session_state["messages"])
+        st.session_state["name"] = new_name
+        st.session_state["new_conversation_name"] = new_name
+        save_current_conversation_name()
+
     st.rerun()
 
 
