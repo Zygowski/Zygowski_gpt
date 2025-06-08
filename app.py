@@ -257,7 +257,7 @@ def list_conversations(): # wczytywanie i zwracanie list rozmów
             })# z każdego pliku zwraza id i name
 
     return conversations # jest to uproszczenie rozmowy 
-def delete_conversation(conversation_id):                                                               # nowy fragment kodu 
+def delete_conversation(conversation_id):                                                               
     # Usuń plik konwersacji
     file_path = DB_CONVERSATIONS_PATH / f"{conversation_id}.json"
     if file_path.exists():
@@ -273,7 +273,7 @@ def delete_conversation(conversation_id):                                       
             # jeśli nie ma żadnej, utwórz nową
             create_new_conversation()
 
-    st.rerun()                                      # tu sie konvczy
+    st.rerun()                                      
 
 
 #
@@ -349,7 +349,7 @@ with st.sidebar:
     sorted_conversations = sorted(conversations, key=lambda x: x["id"], reverse=True)
     
     
-    for conversation in sorted_conversations[:5]:                                                        # zmiany to testu 
+    for conversation in sorted_conversations[:5]:                                                        
         c0, c1, c2 = st.columns([6, 3, 1])
 
         with c0:
