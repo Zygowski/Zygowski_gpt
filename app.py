@@ -257,6 +257,23 @@ def list_conversations(): # wczytywanie i zwracanie list rozmów
             })# z każdego pliku zwraza id i name
 
     return conversations # jest to uproszczenie rozmowy 
+def delete_conversation(conversation_id):                                                               # nowy fragment kodu 
+    # Usuń plik konwersacji
+    file_path = DB_CONVERSATIONS_PATH / f"{conversation_id}.json"
+    if file_path.exists():
+        file_path.unlink()
+
+    # Jeżeli usunięto aktualnie aktywną konwersację
+    if st.session_state["id"] == conversation_id:
+        # znajdź nową konwersację do załadowania
+        remaining_conversations = list_conversations()
+        if remaining_conversations:
+            switch_conversation(remaining_conversations[0]["id"])
+        else:
+            # jeśli nie ma żadnej, utwórz nową
+            create_new_conversation()
+
+    st.rerun()                                      # tu sie konvczy
 
 
 #
@@ -330,11 +347,18 @@ with st.sidebar:
     # pokazujemy tylko top 5 konwersacji
     conversations = list_conversations()
     sorted_conversations = sorted(conversations, key=lambda x: x["id"], reverse=True)
-    for conversation in sorted_conversations[:5]:
-        c0, c1 = st.columns([10, 3])
+    
+    
+    for conversation in sorted_conversations[:5]:                                                        # zmiany to testu 
+        c0, c1, c2 = st.columns([6, 3, 1])
+
         with c0:
             st.write(conversation["name"])
 
         with c1:
-            if st.button("załaduj", key=conversation["id"], disabled=conversation["id"] == st.session_state["id"]):
+            if st.button("📂", key=f"load_{conversation['id']}", disabled=conversation["id"] == st.session_state["id"]):
                 switch_conversation(conversation["id"])
+
+        with c2:
+            if st.button("🗑️", key=f"delete_{conversation['id']}"):
+                delete_conversation(conversation["id"])
