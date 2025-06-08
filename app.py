@@ -329,7 +329,8 @@ for idx, message in enumerate(st.session_state["messages"]):
                 "content": bot_response
                 })
             
-            st.session_state["messages"][idx + 1]["content"] = bot_response
+            if idx + 1 < len(st.session_state["messages"]) and st.session_state["messages"][idx + 1]["role"] == "assistant":
+                st.session_state["messages"][idx + 1]["content"] = bot_response  # zaktualizuj istniejącą odpowiedź AI
             
             save_current_conversation_messages()
                 # Trigguj update do wizualnego odświeżenia
