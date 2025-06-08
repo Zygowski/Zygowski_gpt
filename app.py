@@ -309,7 +309,7 @@ load_current_conversation()
 st.title(":classical_building: MójGPT")
 
 for idx, message in enumerate(st.session_state["messages"]):
-    st.write(f"Processing message {idx}: {message['role']} - {message['content']}")
+    #st.write(f"Processing message {idx}: {message['role']} - {message['content']}")
 
     if st.session_state.editing.get(idx, False):
         edited_content = st.text_area(f"Edytuj wiadomość #{idx}", message["content"], key=f"edit_{idx}")
@@ -330,7 +330,7 @@ for idx, message in enumerate(st.session_state["messages"]):
 
         # Logika dla przycisku edycji
         if message["role"] == "user":
-            st.write(f"Adding edit button for message {idx}")
+            #st.write(f"Adding edit button for message {idx}")
             if st.button("Edytuj", key=f"edit_btn_{idx}"):
                 st.session_state.editing[idx] = True
                 st.rerun()
