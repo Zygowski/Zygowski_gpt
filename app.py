@@ -321,8 +321,12 @@ for idx, message in enumerate(st.session_state["messages"]):
             
             # Po edytowaniu, ponownie wywołaj AI, aby odpowiedzieć na nową wersję wiadomości
             memory = st.session_state["messages"][-20:]
+            
             # Zakładam istnienie funkcji `get_chatbot_reply` do interakcji z modelem AI
             bot_response = get_chatbot_reply(edited_content, memory)
+            
+            
+            ai_response_content = bot_response.get('content', '') # tworzenie tekstu w czytelnej formie
             # Dodaj odpowiedź bota do listy wiadomości
             st.session_state["messages"].append({
                 "role": "assistant",
