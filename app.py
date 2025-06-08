@@ -318,7 +318,19 @@ for idx, message in enumerate(st.session_state["messages"]):
             st.session_state["messages"][idx]["content"] = edited_content
             st.session_state.editing[idx] = False
             save_current_conversation_messages()  # Zapisz zmiany
-            st.rerun()
+            
+            # Po edytowaniu, ponownie wywołaj AI, aby odpowiedzieć na nową wersję wiadomości
+            if message["role"] == "user":
+                # Zakładam istnienie funkcji `get_chatbot_reply` do interakcji z modelem AI
+                bot_response = get_chatbot_reply(edited_content)
+                # Dodaj odpowiedź bota do listy wiadomości
+                st.session_state["messages"].append({
+                    "role": "bot",
+                    "content": bot_response
+                })
+                save_current_conversation_messages()
+                # Trigguj update do wizualnego odświeżenia
+                st.rerun()
 
         if st.button("Anuluj", key=f"cancel_{idx}"):
             st.session_state.editing[idx] = False
