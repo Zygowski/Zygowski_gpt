@@ -3,6 +3,7 @@ from openai import OpenAI
 from dotenv import dotenv_values
 import os
 import uuid
+import datetime
 
 if "user_id" not in st.session_state:
     st.session_state["user_id"] = str(uuid.uuid4())
@@ -213,31 +214,20 @@ def generate_conversation_name(messages):
     return response.choices[0].message.content.strip()
 
 
-def create_new_conversation():
-    user_id = st.session_state["user_id"]
-    if "user_conversations" not in st.session_state:
-        st.session_state["user_conversations"] = {}
+def create_new_conversation(user_id):
+    if "conversations" not in st.session_state:
+        st.session_state["conversations"] = {}
 
-    if user_id not in st.session_state["user_conversations"]:
-        st.session_state["user_conversations"][user_id] = {}
-
-    conversations = st.session_state["user_conversations"][user_id]
-
-    if conversations:
-        conversation_id = max(conversations.keys()) + 1
-    else:
-        conversation_id = 1
-    
-
-
-    conversation = {
+    conversation_id = str(uuid.uuid4())
+    st.session_state["conversations"][conversation_id] = {
         "id": conversation_id,
         "name": "Nowa konwersacja",
-        "chatbot_personality": DEFAULT_PERSONALITY,
         "messages": [],
+        "created_at": datetime.datetime.now().isoformat(),
+        "user_id": user_id
     }
 
-    conversations[conversation_id] = conversation
+    # zapamiętaj bieżącą rozmowę
     st.session_state["current_conversation_id"] = conversation_id
 
     load_conversation_to_state(conversation)
@@ -429,6 +419,7 @@ with st.sidebar:
 
     if st.button("➕ Nowa konwersacja"):
         create_new_conversation()
+        st.rerun()
     
     
 
