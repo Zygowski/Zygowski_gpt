@@ -252,18 +252,18 @@ def switch_conversation(conversation_id: int):
 
 def list_conversations():
     result = []
-    user_id = st.session_state["user_id"]
+    user_id = st.session_state.get("user_id")
 
-    if "user_conversations" not in st.session_state:
+    if not user_id:
         return result
 
-    if user_id not in st.session_state["user_conversations"]:
-        return result
+    user_data = st.session_state.get("user_conversations", {})
+    user_convs = user_data.get(user_id, {})
 
-    for conversation_id, conversation in st.session_state["user_conversations"][user_id].items():
+    for conversation_id, conversation in user_convs.items():
         result.append({
-            "id": conversation["id"],
-            "name": conversation["name"]
+            "id": conversation.get("id"),
+            "name": conversation.get("name", "Bez nazwy")
         })
 
     return result
