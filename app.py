@@ -6,6 +6,17 @@ from pathlib import Path
 import os
 
 st.set_page_config(page_title="Zygowski GPT", layout="centered")
+# Styl dla przewijalnej listy konwersacji
+st.markdown("""
+    <style>
+    /* Scrollowalna sekcja w sidebarze */
+    .scrollable-conversations {
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 if "started" not in st.session_state:
     st.session_state.started = False
@@ -434,6 +445,8 @@ with st.sidebar:
     with st.expander("📄 Lista wszystkich konwersacji", expanded=True):
         if st.button("➕ Nowa konwersacja"):
             create_new_conversation()
+        
+        st.markdown('<div class="scrollable-conversations">', unsafe_allow_html=True)
         
         # pokazujemy tylko top 5 konwersacji
         conversations = list_conversations()
