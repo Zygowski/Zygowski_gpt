@@ -73,7 +73,7 @@ else:
 
     # Użyj klucza od użytkownika
     openai_client = OpenAI(api_key=st.session_state.api_key)
-def create_new_conversation():
+def create_new_conversation(user_id):
     # (treść funkcji bez zmian – ta którą masz)
 
 # TERAZ ten kod będzie działał poprawnie:
@@ -442,4 +442,4 @@ with st.sidebar:
         with c2:
             if st.button("🗑️", key=f"delete_{conversation['id']}"):
                 delete_conversation(conversation["id"])
-    
+   
