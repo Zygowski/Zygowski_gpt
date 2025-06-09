@@ -442,10 +442,10 @@ with st.sidebar:
         
         for conversation in sorted_conversations:                                                        
             with st.container():
-                c0, c1, c2 = st.columns([6, 1, 1])
+                c0, c1, c2 = st.columns([4, 1, 1])
 
                 with c0:
-                    st.markdown(f"**{conversation['name']}**")
+                    st.write(conversation["name"])
 
                 with c1:
                     if st.button("📂", key=f"load_{conversation['id']}", disabled=conversation["id"] == st.session_state["id"]):
