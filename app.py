@@ -448,7 +448,7 @@ with st.sidebar:
             if search_query.lower() in conv["name"].lower()
         ]
         
-        for conversation in sorted_conversations:                                                        
+        for conversation in filtered_conversations:                                                        
             with st.container():
                 c0, c1, c2 = st.columns([4, 1, 1])
 
