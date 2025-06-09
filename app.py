@@ -7,6 +7,21 @@ import os
 
 st.set_page_config(page_title="Zygowski GPT", layout="centered")
 
+if "started" not in st.session_state:
+    st.session_state.started = False
+
+if not st.session_state.started:
+    st.title("🤖 Zygowski GPT")
+    st.subheader("Cześć! 👋")
+    st.write("To moja aplikacja do pisania z AI. Możesz prowadzić rozmowy z inteligentnym asystentem.")
+    st.write("Kliknij poniżej, aby rozpocząć.")
+    
+    if st.button("Rozpocznij rozmowę"):
+        st.session_state.started = True
+        st.rerun()
+    
+    st.stop()
+
 #
 # ZMIENNE
 #
