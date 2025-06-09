@@ -422,8 +422,10 @@ with st.sidebar:
 
     
     conversations = list_conversations()
-    sorted_conversations = sorted(conversations, key=lambda x: x["id"], reverse=True)
-
+    if conversations:
+        sorted_conversations = sorted(conversations, key=lambda x: x["id"], reverse=True)
+    else:
+        sorted_conversations = []
     
     for conversation in sorted_conversations:                                                        
         #with st.container():
