@@ -443,10 +443,7 @@ with st.sidebar:
         # pokazujemy tylko top 5 konwersacji
         conversations = list_conversations()
         sorted_conversations = sorted(conversations, key=lambda x: x["id"], reverse=True)
-        filtered_conversations = [
-            conv for conv in sorted_conversations
-            if search_query.lower() in conv["name"].lower()
-        ]
+
         
         for conversation in sorted_conversations:                                                        
             with st.container():
