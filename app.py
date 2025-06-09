@@ -73,20 +73,7 @@ else:
 
     # Użyj klucza od użytkownika
     openai_client = OpenAI(api_key=st.session_state.api_key)
-def create_new_conversation():
-    # (treść funkcji bez zmian – ta którą masz)
-    user_id = st.session_state["user_id"]
-# TERAZ ten kod będzie działał poprawnie:
-    if "user_conversations" not in st.session_state:
-        st.session_state["user_conversations"] = {}
 
-    user_id = st.session_state["user_id"]
-
-    if user_id not in st.session_state["user_conversations"]:
-        st.session_state["user_conversations"][user_id] = {}
-
-    if "current_conversation_id" not in st.session_state:
-        create_new_conversation()
 # CHATBOT
 #
 def get_chatbot_reply(user_prompt, memory):
