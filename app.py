@@ -2,6 +2,10 @@ import streamlit as st
 from openai import OpenAI
 from dotenv import dotenv_values
 import os
+import uuid
+
+if "user_id" not in st.session_state:
+    st.session_state["user_id"] = str(uuid.uuid4())
 
 st.set_page_config(page_title="Zygowski GPT", layout="centered")
 # Styl dla przewijalnej listy konwersacji
@@ -72,8 +76,13 @@ def create_new_conversation():
     # (treść funkcji bez zmian – ta którą masz)
 
 # TERAZ ten kod będzie działał poprawnie:
-    if "conversations" not in st.session_state:
-        st.session_state["conversations"] = {}
+    if "user_conversations" not in st.session_state:
+        st.session_state["user_conversations"] = {}
+
+    user_id = st.session_state["user_id"]
+
+    if user_id not in st.session_state["user_conversations"]:
+        st.session_state["user_conversations"][user_id] = {}
 
     if "current_conversation_id" not in st.session_state:
         create_new_conversation()
@@ -134,12 +143,11 @@ def load_conversation_to_state(conversation):
 
 
 def load_current_conversation():
-
-    if "conversations" not in st.session_state:
-        st.session_state["conversations"] = {}
+   
+    user_id = st.session_state["user_id"]
+    conversations = st.session_state["user_conversations"][user_id]
 
     if "current_conversation_id" not in st.session_state:
-        # tworzymy pierwszą konwersację
         conversation_id = 1
         conversation = {
             "id": conversation_id,
@@ -147,32 +155,36 @@ def load_current_conversation():
             "chatbot_personality": DEFAULT_PERSONALITY,
             "messages": [],
         }
-        st.session_state["conversations"][conversation_id] = conversation
+        conversations[conversation_id] = conversation
         st.session_state["current_conversation_id"] = conversation_id
     else:
         conversation_id = st.session_state["current_conversation_id"]
 
-    conversation = st.session_state["conversations"][conversation_id]
-
+    conversation = conversations[conversation_id]
 
     load_conversation_to_state(conversation)
-    if 'editing' not in st.session_state:  # Inicjalizacja stanu edycji
+    if 'editing' not in st.session_state:
         st.session_state.editing = {}
-
 # ZAPISYWANIE KONWERSACJI
 
 def save_current_conversation_messages():
+    user_id = st.session_state["user_id"]
+    conversations = st.session_state["user_conversations"][user_id]
     conversation_id = st.session_state["id"]
-    st.session_state["conversations"][conversation_id]["messages"] = st.session_state["messages"]
+    conversations[conversation_id]["messages"] = st.session_state["messages"]
 
 
 def save_current_conversation_name():
+    user_id = st.session_state["user_id"]
+    conversations = st.session_state["user_conversations"][user_id]
     conversation_id = st.session_state["id"]
-    st.session_state["conversations"][conversation_id]["name"] = st.session_state["name"]
+    conversations[conversation_id]["name"] = st.session_state["name"]
 
 def save_current_conversation_personality():
+    user_id = st.session_state["user_id"]
+    conversations = st.session_state["user_conversations"][user_id]
     conversation_id = st.session_state["id"]
-    st.session_state["conversations"][conversation_id]["chatbot_personality"] = st.session_state["chatbot_personality"]
+    conversations[conversation_id]["chatbot_personality"] = st.session_state["chatbot_personality"]
 
 
 def generate_conversation_name(messages):
@@ -196,11 +208,17 @@ def generate_conversation_name(messages):
 
 
 def create_new_conversation():
-    if "conversations" not in st.session_state:
-        st.session_state["conversations"] = {}
+    user_id = st.session_state["user_id"]
+    if "user_conversations" not in st.session_state:
+        st.session_state["user_conversations"] = {}
 
-    if st.session_state["conversations"]:
-        conversation_id = max(st.session_state["conversations"].keys()) + 1
+    if user_id not in st.session_state["user_conversations"]:
+        st.session_state["user_conversations"][user_id] = {}
+
+    conversations = st.session_state["user_conversations"][user_id]
+
+    if conversations:
+        conversation_id = max(conversations.keys()) + 1
     else:
         conversation_id = 1
     
@@ -213,19 +231,21 @@ def create_new_conversation():
         "messages": [],
     }
 
-    st.session_state["conversations"][conversation_id] = conversation
+    conversations[conversation_id] = conversation
     st.session_state["current_conversation_id"] = conversation_id
 
-    load_conversation_to_state(conversation)# załadowanie nowej konwersacji do sesji
+    load_conversation_to_state(conversation)
     st.rerun()
 
 
 # funkcja ta pozwala zmienić aktualną konwersacje (ZAŁADOWANIE INNEJ KONWERSACJI)
 def switch_conversation(conversation_id: int):
+    user_id = st.session_state["user_id"]
+    conversations = st.session_state["user_conversations"][user_id]
     st.session_state["current_conversation_id"] = conversation_id
-    conversation = st.session_state["conversations"][conversation_id]
-    
-    load_conversation_to_state(conversation) # załadować tą konwersacje do sesji 
+
+    conversation = conversations[conversation_id]
+    load_conversation_to_state(conversation)
     
     
 # --- TU dodajemy automatyczne nadawanie nazwy ---
@@ -243,12 +263,18 @@ def switch_conversation(conversation_id: int):
 
 
 def list_conversations(): # wczytywanie i zwracanie list rozmów
-    result = []
-    if "conversations" not in st.session_state:
-        return result
+    user_id = st.session_state["user_id"]
+    if "user_conversations" not in st.session_state:
+        return []
 
-    for conversation_id in sorted(st.session_state["conversations"].keys()):
-        conversation = st.session_state["conversations"][conversation_id]
+    if user_id not in st.session_state["user_conversations"]:
+        return []
+
+    conversations = st.session_state["user_conversations"][user_id]
+
+    result = []
+    for conversation_id in sorted(conversations.keys()):
+        conversation = conversations[conversation_id]
         result.append((conversation["id"], conversation["name"]))
 
     return result
@@ -256,22 +282,28 @@ def list_conversations(): # wczytywanie i zwracanie list rozmów
 
                                                              
 def delete_conversation(conversation_id: int):
-    if "conversations" not in st.session_state:
+    user_id = st.session_state["user_id"]
+    if "user_conversations" not in st.session_state:
         return
 
-    if conversation_id in st.session_state["conversations"]:
-        del st.session_state["conversations"][conversation_id]
+    if user_id not in st.session_state["user_conversations"]:
+        return
+
+    conversations = st.session_state["user_conversations"][user_id]
+
+    if conversation_id in conversations:
+        del conversations[conversation_id]
 
         if st.session_state.get("current_conversation_id") == conversation_id:
-            remaining = list(st.session_state["conversations"].keys())
+            remaining = list(conversations.keys())
             if remaining:
                 new_current_id = min(remaining)
                 st.session_state["current_conversation_id"] = new_current_id
-                load_conversation_to_state(st.session_state["conversations"][new_current_id])
+                load_conversation_to_state(conversations[new_current_id])
             else:
                 create_new_conversation()
 
-    st.rerun()                                      
+    st.rerun()                                   
 
 
 #
