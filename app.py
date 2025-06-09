@@ -445,7 +445,7 @@ with st.sidebar:
                 c0, c1, c2 = st.columns([6, 1, 1])
 
                 with c0:
-                    st.write(conversation["name"])
+                    st.markdown(f"**{conversation['name']}**")
 
                 with c1:
                     if st.button("📂", key=f"load_{conversation['id']}", disabled=conversation["id"] == st.session_state["id"]):
