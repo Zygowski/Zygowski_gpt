@@ -433,14 +433,14 @@ with st.sidebar:
     )
     
     st.subheader("🗂️ Konwersacje")
-    search_query = st.text_input("🔍 Szukaj konwersacji", placeholder="Wpisz frazę...")
-#with st.expander("📄 Lista wszystkich konwersacji", expanded=True):
+   
+
     if st.button("➕ Nowa konwersacja"):
         create_new_conversation()
     
     
 
-    # pokazujemy tylko top 5 konwersacji
+    
     conversations = list_conversations()
     sorted_conversations = sorted(conversations, key=lambda x: x["id"], reverse=True)
 
