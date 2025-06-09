@@ -143,8 +143,14 @@ def load_conversation_to_state(conversation):
 
 
 def load_current_conversation():
-   
     user_id = st.session_state["user_id"]
+
+    if "user_conversations" not in st.session_state:
+        st.session_state["user_conversations"] = {}
+
+    if user_id not in st.session_state["user_conversations"]:
+        st.session_state["user_conversations"][user_id] = {}
+
     conversations = st.session_state["user_conversations"][user_id]
 
     if "current_conversation_id" not in st.session_state:
