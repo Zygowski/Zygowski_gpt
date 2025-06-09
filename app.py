@@ -201,23 +201,28 @@ def generate_conversation_name(messages):
     return response.choices[0].message.content.strip()
 
 
-def create_new_conversation(user_id):
-    if "conversations" not in st.session_state:
-        st.session_state["conversations"] = {}
+def create_new_conversation():
+    user_id = st.session_state["user_id"]
+
+    if "user_conversations" not in st.session_state:
+        st.session_state["user_conversations"] = {}
+
+    if user_id not in st.session_state["user_conversations"]:
+        st.session_state["user_conversations"][user_id] = {}
 
     conversation_id = str(uuid.uuid4())
-    st.session_state["conversations"][conversation_id] = {
+    st.session_state["user_conversations"][user_id][conversation_id] = {
         "id": conversation_id,
         "name": "Nowa konwersacja",
         "messages": [],
+        "chatbot_personality": DEFAULT_PERSONALITY,
         "created_at": datetime.datetime.now().isoformat(),
-        "user_id": user_id
     }
 
-    # zapamiętaj bieżącą rozmowę
     st.session_state["current_conversation_id"] = conversation_id
-
-    load_conversation_to_state(conversation)
+    load_conversation_to_state(
+        st.session_state["user_conversations"][user_id][conversation_id]
+    )
     st.rerun()
 
 
