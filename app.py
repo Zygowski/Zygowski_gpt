@@ -7,22 +7,7 @@ import os
 
 st.set_page_config(page_title="Zygowski GPT", layout="centered")
 # Styl dla przewijalnej listy konwersacji
-st.markdown("""
-    <style>
-    /* Przewijalna sekcja w sidebarze */
-    section[data-testid="stSidebar"] > div:first-child {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-    }
 
-    .conversation-scrollbox {
-        overflow-y: auto;
-        flex-grow: 1;
-        padding-right: 10px;
-    }
-    </style>
-""", unsafe_allow_html=True)
 
 if "started" not in st.session_state:
     st.session_state.started = False
@@ -452,7 +437,7 @@ with st.sidebar:
         if st.button("➕ Nowa konwersacja"):
             create_new_conversation()
         
-        st.markdown('<div class="conversation-scrollbox">', unsafe_allow_html=True)
+        
 
         # pokazujemy tylko top 5 konwersacji
         conversations = list_conversations()
