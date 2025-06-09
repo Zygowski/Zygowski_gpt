@@ -430,26 +430,28 @@ with st.sidebar:
         on_change=save_current_conversation_personality,
     )
     
-    st.subheader("Konwersacje")
-    if st.button("Nowa konwersacja"):
-        create_new_conversation()
-    
-    # pokazujemy tylko top 5 konwersacji
-    conversations = list_conversations()
-    sorted_conversations = sorted(conversations, key=lambda x: x["id"], reverse=True)
-    
-    
-    for conversation in sorted_conversations:                                                        
-        c0, c1, c2 = st.columns([6, 3, 1])
+    st.subheader("🗂️ Konwersacje")
+    with st.expander("📄 Lista wszystkich konwersacji", expanded=True):
+        if st.button("➕ Nowa konwersacja"):
+            create_new_conversation()
+        
+        # pokazujemy tylko top 5 konwersacji
+        conversations = list_conversations()
+        sorted_conversations = sorted(conversations, key=lambda x: x["id"], reverse=True)
+        
+        
+        for conversation in sorted_conversations:                                                        
+            with st.container():
+                c0, c1, c2 = st.columns([6, 3, 1])
 
-        with c0:
-            st.write(conversation["name"])
+                with c0:
+                    st.write(conversation["name"])
 
-        with c1:
-            if st.button("📂", key=f"load_{conversation['id']}", disabled=conversation["id"] == st.session_state["id"]):
-                switch_conversation(conversation["id"])
+                with c1:
+                    if st.button("📂", key=f"load_{conversation['id']}", disabled=conversation["id"] == st.session_state["id"]):
+                        switch_conversation(conversation["id"])
 
-        with c2:
-            if st.button("🗑️", key=f"delete_{conversation['id']}"):
-                delete_conversation(conversation["id"])
- 
+                with c2:
+                    if st.button("🗑️", key=f"delete_{conversation['id']}"):
+                        delete_conversation(conversation["id"])
+        
