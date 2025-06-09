@@ -434,29 +434,29 @@ with st.sidebar:
     
     st.subheader("🗂️ Konwersacje")
     search_query = st.text_input("🔍 Szukaj konwersacji", placeholder="Wpisz frazę...")
-    with st.expander("📄 Lista wszystkich konwersacji", expanded=True):
-        if st.button("➕ Nowa konwersacja"):
-            create_new_conversation()
-        
-        
+#with st.expander("📄 Lista wszystkich konwersacji", expanded=True):
+    if st.button("➕ Nowa konwersacja"):
+        create_new_conversation()
+    
+    
 
-        # pokazujemy tylko top 5 konwersacji
-        conversations = list_conversations()
-        sorted_conversations = sorted(conversations, key=lambda x: x["id"], reverse=True)
+    # pokazujemy tylko top 5 konwersacji
+    conversations = list_conversations()
+    sorted_conversations = sorted(conversations, key=lambda x: x["id"], reverse=True)
 
-        
-        for conversation in sorted_conversations:                                                        
-            with st.container():
-                c0, c1, c2 = st.columns([4, 1, 1])
+    
+    for conversation in sorted_conversations:                                                        
+        #with st.container():
+        c0, c1, c2 = st.columns([4, 1, 1])
 
-                with c0:
-                    st.write(conversation["name"])
+        with c0:
+            st.write(conversation["name"])
 
-                with c1:
-                    if st.button("📂", key=f"load_{conversation['id']}", disabled=conversation["id"] == st.session_state["id"]):
-                        switch_conversation(conversation["id"])
+        with c1:
+            if st.button("📂", key=f"load_{conversation['id']}", disabled=conversation["id"] == st.session_state["id"]):
+                switch_conversation(conversation["id"])
 
-                with c2:
-                    if st.button("🗑️", key=f"delete_{conversation['id']}"):
-                        delete_conversation(conversation["id"])
-        
+        with c2:
+            if st.button("🗑️", key=f"delete_{conversation['id']}"):
+                delete_conversation(conversation["id"])
+    
