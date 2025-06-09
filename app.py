@@ -442,7 +442,7 @@ with st.sidebar:
         
         for conversation in sorted_conversations:                                                        
             with st.container():
-                c0, c1, c2 = st.columns([6, 2, 1])
+                c0, c1, c2 = st.columns([6, 1, 1])
 
                 with c0:
                     st.write(conversation["name"])
