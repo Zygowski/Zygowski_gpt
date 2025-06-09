@@ -1,8 +1,6 @@
 import streamlit as st
 from openai import OpenAI
 from dotenv import dotenv_values
-import json
-from pathlib import Path
 import os
 
 st.set_page_config(page_title="Zygowski GPT", layout="centered")
@@ -70,8 +68,15 @@ else:
 
     # Użyj klucza od użytkownika
     openai_client = OpenAI(api_key=st.session_state.api_key)
+def create_new_conversation():
+    # (treść funkcji bez zmian – ta którą masz)
 
-#
+# TERAZ ten kod będzie działał poprawnie:
+    if "conversations" not in st.session_state:
+        st.session_state["conversations"] = {}
+
+    if "current_conversation_id" not in st.session_state:
+        create_new_conversation()
 # CHATBOT
 #
 def get_chatbot_reply(user_prompt, memory):
@@ -120,14 +125,7 @@ Jesteś pomocnikiem, który odpowiada na wszystkie pytania użytkownika.
 Odpowiadaj na pytania w sposób zwięzły i zrozumiały.
 """.strip()
 
-DB_PATH = Path("db")
-DB_CONVERSATIONS_PATH = DB_PATH / "conversations"
-# db/
-# ├── current.json
-# ├── conversations/
-# │   ├── 1.json
-# │   ├── 2.json
-# │   └── ...
+
 def load_conversation_to_state(conversation):
     st.session_state["id"] = conversation["id"]
     st.session_state["name"] = conversation["name"]
@@ -136,36 +134,26 @@ def load_conversation_to_state(conversation):
 
 
 def load_current_conversation():
-    if not DB_PATH.exists():
-        DB_PATH.mkdir()
-        DB_CONVERSATIONS_PATH.mkdir()
+
+    if "conversations" not in st.session_state:
+        st.session_state["conversations"] = {}
+
+    if "current_conversation_id" not in st.session_state:
+        # tworzymy pierwszą konwersację
         conversation_id = 1
         conversation = {
             "id": conversation_id,
-            "name": "Konwersacja 1",
+            "name": "Nowa konwersacja",
             "chatbot_personality": DEFAULT_PERSONALITY,
             "messages": [],
         }
-
-        # tworzymy nową konwersację
-        with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "w") as f:
-            f.write(json.dumps(conversation))
-
-        # która od razu staje się aktualną
-        with open(DB_PATH / "current.json", "w") as f:
-            f.write(json.dumps({
-                "current_conversation_id": conversation_id,
-            }))
-
+        st.session_state["conversations"][conversation_id] = conversation
+        st.session_state["current_conversation_id"] = conversation_id
     else:
-        # sprawdzamy, która konwersacja jest aktualna
-        with open(DB_PATH / "current.json", "r") as f:
-            data = json.loads(f.read())
-            conversation_id = data["current_conversation_id"]
+        conversation_id = st.session_state["current_conversation_id"]
 
-        # wczytujemy konwersację
-        with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "r") as f:
-            conversation = json.loads(f.read())
+    conversation = st.session_state["conversations"][conversation_id]
+
 
     load_conversation_to_state(conversation)
     if 'editing' not in st.session_state:  # Inicjalizacja stanu edycji
@@ -175,44 +163,17 @@ def load_current_conversation():
 
 def save_current_conversation_messages():
     conversation_id = st.session_state["id"]
-    new_messages = st.session_state["messages"]
-
-    with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "r") as f:
-        conversation = json.loads(f.read())
-
-    with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "w") as f:
-        json.dump(st.session_state.to_dict(), f)
-
+    st.session_state["conversations"][conversation_id]["messages"] = st.session_state["messages"]
 
 
 def save_current_conversation_name():
     conversation_id = st.session_state["id"]
-    conversation_id = st.session_state.get("id", "id_1")
-
-    new_conversation_name = st.session_state["new_conversation_name"]
-
-    with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "r") as f:
-        conversation = json.loads(f.read())
-
-    with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "w") as f:
-        f.write(json.dumps({
-            **conversation,
-            "name": new_conversation_name,
-        }))
-
+    st.session_state["conversations"][conversation_id]["name"] = st.session_state["name"]
 
 def save_current_conversation_personality():
     conversation_id = st.session_state["id"]
-    new_chatbot_personality = st.session_state["new_chatbot_personality"]
+    st.session_state["conversations"][conversation_id]["chatbot_personality"] = st.session_state["chatbot_personality"]
 
-    with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "r") as f:
-        conversation = json.loads(f.read())
-
-    with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "w") as f:
-        f.write(json.dumps({
-            **conversation,
-            "chatbot_personality": new_chatbot_personality,
-        }))
 
 def generate_conversation_name(messages):
     # Tylko pierwsze 1–2 wiadomości wystarczą
@@ -235,41 +196,35 @@ def generate_conversation_name(messages):
 
 
 def create_new_conversation():
-    # Szukamy nowego ID
-    conversation_ids = [int(p.stem) for p in DB_CONVERSATIONS_PATH.glob("*.json")] # zaczytywanie wszystkich plików z rozszerzeniem json i pobieranie ich ID
-    conversation_id = max(conversation_ids, default=0) + 1 # zwiększamy ID o 1
+    if "conversations" not in st.session_state:
+        st.session_state["conversations"] = {}
 
-    personality = st.session_state.get("chatbot_personality", DEFAULT_PERSONALITY) # pobieramy osobowość chatbota z sesji lub ustawiamy domyślną
+    if st.session_state["conversations"]:
+        conversation_id = max(st.session_state["conversations"].keys()) + 1
+    else:
+        conversation_id = 1
     
 
 
     conversation = {
         "id": conversation_id,
         "name": "Nowa konwersacja",
-        "chatbot_personality": personality,
+        "chatbot_personality": DEFAULT_PERSONALITY,
         "messages": [],
     }
 
-    with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "w") as f: # zapisywanie nowej konwersacji do pliku
-        f.write(json.dumps(conversation))
+    st.session_state["conversations"][conversation_id] = conversation
+    st.session_state["current_conversation_id"] = conversation_id
 
-    with open(DB_PATH / "current.json", "w") as f:
-        f.write(json.dumps({"current_conversation_id": conversation_id})) # zapisywanie ID nowej konwersacji jako aktualnej
-
-    load_conversation_to_state(conversation) # załadowanie nowej konwersacji do sesji
+    load_conversation_to_state(conversation)# załadowanie nowej konwersacji do sesji
     st.rerun()
 
 
 # funkcja ta pozwala zmienić aktualną konwersacje (ZAŁADOWANIE INNEJ KONWERSACJI)
-def switch_conversation(conversation_id):
-    with open(DB_CONVERSATIONS_PATH / f"{conversation_id}.json", "r") as f:
-        conversation = json.loads(f.read()) # Wczytujemy konwersację
-
-    with open(DB_PATH / "current.json", "w") as f:
-        f.write(json.dumps({
-            "current_conversation_id": conversation_id, # USTAWIANIE CURRENT CNV NA TĄ KONWERSACJE
-        }))
-
+def switch_conversation(conversation_id: int):
+    st.session_state["current_conversation_id"] = conversation_id
+    conversation = st.session_state["conversations"][conversation_id]
+    
     load_conversation_to_state(conversation) # załadować tą konwersacje do sesji 
     
     
@@ -288,31 +243,33 @@ def switch_conversation(conversation_id):
 
 
 def list_conversations(): # wczytywanie i zwracanie list rozmów
-    conversations = []
-    for p in DB_CONVERSATIONS_PATH.glob("*.json"):
-        with open(p, "r") as f: # otwieranie wszystkich plików o rozszerzeniu json
-            conversation = json.loads(f.read())
-            conversations.append({
-                "id": conversation["id"],
-                "name": conversation["name"],
-            })# z każdego pliku zwraza id i name
+    result = []
+    if "conversations" not in st.session_state:
+        return result
 
-    return conversations # jest to uproszczenie rozmowy 
-def delete_conversation(conversation_id):                                                               
-    # Usuń plik konwersacji
-    file_path = DB_CONVERSATIONS_PATH / f"{conversation_id}.json"
-    if file_path.exists():
-        file_path.unlink()
+    for conversation_id in sorted(st.session_state["conversations"].keys()):
+        conversation = st.session_state["conversations"][conversation_id]
+        result.append((conversation["id"], conversation["name"]))
 
-    # Jeżeli usunięto aktualnie aktywną konwersację
-    if st.session_state["id"] == conversation_id:
-        # znajdź nową konwersację do załadowania
-        remaining_conversations = list_conversations()
-        if remaining_conversations:
-            switch_conversation(remaining_conversations[0]["id"])
-        else:
-            # jeśli nie ma żadnej, utwórz nową
-            create_new_conversation()
+    return result
+
+
+                                                             
+def delete_conversation(conversation_id: int):
+    if "conversations" not in st.session_state:
+        return
+
+    if conversation_id in st.session_state["conversations"]:
+        del st.session_state["conversations"][conversation_id]
+
+        if st.session_state.get("current_conversation_id") == conversation_id:
+            remaining = list(st.session_state["conversations"].keys())
+            if remaining:
+                new_current_id = min(remaining)
+                st.session_state["current_conversation_id"] = new_current_id
+                load_conversation_to_state(st.session_state["conversations"][new_current_id])
+            else:
+                create_new_conversation()
 
     st.rerun()                                      
 
