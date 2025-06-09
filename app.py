@@ -439,7 +439,7 @@ with st.sidebar:
     sorted_conversations = sorted(conversations, key=lambda x: x["id"], reverse=True)
     
     
-    for conversation in sorted_conversations[:5]:                                                        
+    for conversation in sorted_conversations:                                                        
         c0, c1, c2 = st.columns([6, 3, 1])
 
         with c0:
