@@ -21,7 +21,7 @@ model_pricings = {
     }
 }
 MODEL = "gpt-4o"
-USD_TO_PLN = 3.82
+USD_TO_PLN = 3.74
 PRICING = model_pricings[MODEL]
 env = dotenv_values(".env")  # wczytanie zmiennych środowiskowych z pliku .env
 
