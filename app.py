@@ -423,7 +423,12 @@ with st.sidebar:
     
     conversations = list_conversations()
     if conversations:
-        sorted_conversations = sorted(conversations, key=lambda x: x["id"], reverse=True)
+        try:
+            # Sortuj z obsługą potencjalnych brakujących identyfikatorów lub mieszanych typów
+            sorted_conversations = sorted(conversations, key=lambda x: str(x.get("id", "")), reverse=True)
+        except TypeError as e:
+            st.error(f"Błąd podczas sortowania konwersacji: {e}")
+            sorted_conversations = conversations  # ewentualnie przekaż nieposortowane
     else:
         sorted_conversations = []
     
