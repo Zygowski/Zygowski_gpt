@@ -7,12 +7,12 @@ import datetime
 import sqlite3
 import json
 
-if "user_id" not in st.session_state:
-    st.session_state["user_id"] = str(uuid.uuid4())
 
 st.set_page_config(page_title="Zygowski GPT", layout="centered")
 # Styl dla przewijalnej listy konwersacji
 
+if "user_id" not in st.session_state:
+    st.session_state["user_id"] = str(uuid.uuid4())
 
 if "started" not in st.session_state:
     st.session_state.started = False
@@ -161,8 +161,7 @@ user_id = st.session_state["user_id"]
 # Load user-specific conversation from the database
 st.session_state["messages"] = load_user_conversation_history(conn, user_id)
 
-# Your existing Streamlit configurations and logic
-st.set_page_config(page_title="Zygowski GPT", layout="centered")
+
 
 # The rest of your code follows here...
 
