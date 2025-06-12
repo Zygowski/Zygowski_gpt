@@ -123,67 +123,7 @@ DEFAULT_PERSONALITY = """
 Jesteś pomocnikiem, który odpowiada na wszystkie pytania użytkownika.
 Odpowiadaj na pytania w sposób zwięzły i zrozumiały.
 """.strip()
-##############################################################
-# Initialize the database
-def init_db():
-    conn = sqlite3.connect('user_conversations.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS user_chat_history
-                 (user_id TEXT, messages TEXT)''')
-    conn.commit()
-    return conn
 
-# Function to load conversation history for a user
-def load_user_conversation_history(conn, user_id):
-    c = conn.cursor()
-    c.execute('SELECT messages FROM user_chat_history WHERE user_id=?', (user_id,))
-    row = c.fetchone()
-    if row:
-        return json.loads(row[0])
-    else:
-        return []
-
-# Function to save conversation history for a user
-def save_user_conversation_history(conn, user_id, messages):
-    c = conn.cursor()
-    c.execute('REPLACE INTO user_chat_history (user_id, messages) VALUES (?, ?)', (user_id, json.dumps(messages)))
-    conn.commit()
-
-# Initialize database connection
-conn = init_db()
-
-# Set up session state for user ID
-if "user_id" not in st.session_state:
-    st.session_state["user_id"] = str(uuid.uuid4())
-
-user_id = st.session_state["user_id"]
-
-# Load user-specific conversation from the database
-st.session_state["messages"] = load_user_conversation_history(conn, user_id)
-
-
-
-# The rest of your code follows here...
-
-# Main chat logic
-new_message = st.text_input("Enter your message:")
-if st.button("Send"):
-    st.session_state["messages"].append({"role": "user", "content": new_message})
-
-    # Generate a response using your existing chatbot logic
-    # Replace this with your message generation logic
-    bot_response = {"role": "assistant", "content": "Response from the bot"}
-    st.session_state["messages"].append(bot_response)
-
-    # Save the conversation to the database
-    save_user_conversation_history(conn, user_id, st.session_state["messages"])
-
-    # Refresh or continue processing
-    st.experimental_rerun()
-
-for message in st.session_state["messages"]:
-    st.write(f"{message['role']}: {message['content']}")
-############################################################################################
 def load_conversation_to_state(conversation):
     st.session_state["id"] = conversation["id"]
     st.session_state["name"] = conversation["name"]
@@ -508,3 +448,4 @@ with st.sidebar:
             if st.button("🗑️", key=f"delete_{conversation['id']}"):
                 delete_conversation(conversation["id"])
    
+st.experimental_rerun 
